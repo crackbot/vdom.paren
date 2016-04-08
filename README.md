@@ -1,43 +1,80 @@
-# React manual
+<a id='x-28VDOM-2EPAREN-3A-40MAIN-TUTORIAL-20MGL-PAX-3ASECTION-29'></a>
 
-###### \[in package REACT.PAREN\]
-## react.paren ASDF System Details
+# Main
 
-- Version: 0.0.2
-- Description: Bindings to react.js library with several extensions.
-- Licence: The MIT License (MIT)
-- Author: Crackbot <thecrackbot@gmail.com>
-- Maintainer: Crackbot <thecrackbot@gmail.com>
+## Table of Contents
 
-This library defines couple of helper macros to make it easier to
-use react.js library
+- [1 Tutorial][05e2]
+- [2 API][61af]
 
-- [variable] *WITH-SELF* T
+###### \[in package VDOM.PAREN\]
+This is a binding to virtual-dom library with few extensions.
 
-    Define self variable inside each function in component
+<a id='x-28VDOM-2EPAREN-3A-40LIBRARY-TUTORIAL-20MGL-PAX-3ASECTION-29'></a>
 
-- [psmacro] COMPONENT 
+## 1 Tutorial
 
-- [psmacro] DEFCOMPONENT 
+Here is an implementation of simple TODO app.
 
-- [psmacro] RENDER-COMPONENT 
+Single todo item:
 
-- [psmacro] WHO 
-
-- [psmacro] SET-STATE% 
-
-Example
-
-```commonlisp
-
-(defcomponent child
+```lisp
+(defcomponent *list-item ()
+  (defun initialize (data)
+    (setf% data data))
+  
   (defun render ()
-    (who (:p "Got prop: " (@ this props text)))))
-   
-(defcomponent hello
-  (defun render ()
-    (who (:div (:p (@ this props text)) (% child :text "it works!")))))
-
-(render-component hello (-> document (get-element-by-id "test")))
+    (who (:li (@ this data title)))))
 ```
 
+List:
+
+```lisp
+(defcomponent *list ()
+  (defun initialize (items)
+    (setf% items items))
+  
+  (defun create-item (data)
+    (-> (new (*list-item data)) (render)))
+
+  (defun render ()
+    (let ((items (mapcar (@ this create-item)
+                         (@ this items))))
+      (who (:ul items)))))
+```
+
+Let's render the app into `DOM`
+
+```lisp
+(defvar list (new (*list (array (create :title "Item 1")
+                                (create :title "Item 1")))))
+(defvar el (-> document (get-elements-by-tag-name "body")))
+
+(render-component list (aref el 0))
+```
+
+
+<a id='x-28VDOM-2EPAREN-3A-40API-TUTORIAL-20MGL-PAX-3ASECTION-29'></a>
+
+## 2 API
+
+<a id='x-28VDOM-2EPAREN-3ADEFCOMPONENT-20-28MGL-PAX-EXT-3APSMACRO-29-29'></a>
+
+- [psmacro] **DEFCOMPONENT** *NAME SUPER-CLASSES &REST BODY* 
+
+    Define new virtual-dom component.
+
+<a id='x-28VDOM-2EPAREN-3ARENDER-COMPONENT-20-28MGL-PAX-EXT-3APSMACRO-29-29'></a>
+
+- [psmacro] **RENDER-COMPONENT** *NAME DOM* 
+
+    Render component inside dom node
+
+<a id='x-28VDOM-2EPAREN-3AWHO-20-28MGL-PAX-EXT-3APSMACRO-29-29'></a>
+
+- [psmacro] **WHO** *&REST BODY* 
+
+    Transform cl-who like forms into vdom nodes
+
+  [05e2]: #x-28VDOM-2EPAREN-3A-40LIBRARY-TUTORIAL-20MGL-PAX-3ASECTION-29 "Tutorial"
+  [61af]: #x-28VDOM-2EPAREN-3A-40API-TUTORIAL-20MGL-PAX-3ASECTION-29 "API"
